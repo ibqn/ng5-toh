@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Hero } from '../hero';
+import { HeroService } from '../hero.service';
+import { Observable } from 'rxjs/Observable';
 
 
 @Component({
@@ -7,11 +10,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./heroes.component.sass'],
 })
 export class HeroesComponent implements OnInit {
-  hero = 'Windstorm';
+  heroes: Observable<Hero[]>;
+  selectedHero: Hero;
 
-  constructor() { }
+  constructor(private heroService: HeroService) { }
 
-  ngOnInit() {
+  selectHero = (hero: Hero) => {
+    this.selectedHero = hero;
   }
 
+  ngOnInit() {
+    this.heroes = this.heroService.getHeroes();
+  }
 }
