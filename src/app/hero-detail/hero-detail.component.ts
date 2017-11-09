@@ -5,7 +5,6 @@ import {Hero} from '../hero';
 import { HeroService } from '../hero.service';
 
 
-
 @Component({
   selector: 'app-hero-detail',
   templateUrl: './hero-detail.component.html',
@@ -13,15 +12,22 @@ import { HeroService } from '../hero.service';
 })
 export class HeroDetailComponent implements OnInit {
   @Input() hero: Hero;
+  private _route: boolean;
+
+  get route(): boolean { return this._route; }
 
   constructor(
     private heroService: HeroService,
     private location: Location,
-    private route: ActivatedRoute) { }
+    private activatedRoute: ActivatedRoute) { }
+
+  goBack = (): void => this.location.back();
 
   ngOnInit() {
-    const id: number = +this.route.snapshot.paramMap.get('id');
-    this.heroService.getHero(id).subscribe(hero => this.hero = hero);
+    const id: number = +this.activatedRoute.snapshot.paramMap.get('id') || -1;
+    this._route = id >= 0;
+    if (this._route) {
+      this.heroService.getHero(id).subscribe(hero => this.hero = hero);
+    }
   }
-
 }
