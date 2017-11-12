@@ -24,8 +24,8 @@ export class HeroDetailComponent implements OnInit {
   goBack = (): void => this.location.back();
 
   ngOnInit() {
-    const id: number = +this.activatedRoute.snapshot.paramMap.get('id') || -1;
-    this._route = id >= 0;
+    const id: string = this.activatedRoute.snapshot.paramMap.get('id') || undefined;
+    this._route = id !== undefined;
     if (this._route) {
       this.heroService.getHero(id).subscribe(hero => this.hero = hero);
     }
