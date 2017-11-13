@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Hero } from '../hero';
 import { HeroService } from '../hero.service';
 import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
 
 
 @Component({
@@ -10,31 +11,33 @@ import { Observable } from 'rxjs/Observable';
   styleUrls: ['./heroes.component.sass'],
 })
 export class HeroesComponent implements OnInit {
-  heroes: Hero[];
-  selectedHero: Hero;
+  private _heroes: Hero[];
+  private _selectedHero: Hero;
+
+  get selectedHero(): Hero { return this._selectedHero; }
+  get heroes$(): Observable<Hero[]> { return of(this._heroes); }
 
   constructor(private heroService: HeroService) { }
 
   selectHero = (hero: Hero) => {
-    this.selectedHero = hero;
+    this._selectedHero = hero;
   }
 
   saveHero = (name: string): void => {
     name = name.trim();
     if (name === '') { return; }
     this.heroService.addHero({ name } as Hero)
-      .subscribe((hero: Hero) => this.heroes.push(hero));
+      .subscribe((hero: Hero) => this._heroes.push(hero));
   }
 
   deleteHero = (hero: Hero) => {
     this.heroService.removeHero(hero)
-      .subscribe(_ => this.heroes = this.heroes.filter(h => h.id !== hero.id));
+      .subscribe(_ => this._heroes = this._heroes.filter(h => h.id !== hero.id));
   }
 
-
   ngOnInit() {
-    this.heroes = [];
+    this._heroes = [];
     this.heroService.getHeroes()
-      .subscribe((heroes: Hero[]) => this.heroes = heroes);
+      .subscribe((heroes: Hero[]) => this._heroes = heroes);
   }
 }
