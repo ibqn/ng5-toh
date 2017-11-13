@@ -23,11 +23,21 @@ export class HeroDetailComponent implements OnInit {
 
   goBack = (): void => this.location.back();
 
+  update = (): void => {
+    this.heroService.updateHero(this.hero)
+      .subscribe(_ => {
+        if (this._route) {
+          this.location.back();
+        }
+      });
+  }
+
   ngOnInit() {
     const id: string = this.activatedRoute.snapshot.paramMap.get('id') || undefined;
     this._route = id !== undefined;
     if (this._route) {
-      this.heroService.getHero(id).subscribe(hero => this.hero = hero);
+      this.heroService.getHero(id)
+        .subscribe((hero: Hero) => this.hero = hero);
     }
   }
 }

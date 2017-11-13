@@ -2,30 +2,49 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Hero } from './hero';
-import { HEROES } from './mock-heroes';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { MessageService } from './message.service';
 
 
 @Injectable()
 export class HeroService {
   private heroesUrl = 'http://localhost:8000/api/hero/';
+  private readonly httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  };
 
   getHeroes = (): Observable<Hero[]> => {
-    this.log('fetched heroes');
     return this.http.get<Hero[]>(this.heroesUrl).pipe(
-      map(res => res['result'])
+      map(res => res['result'] as Hero[]),
+      tap(_ => this.log('fetched heroes')),
     );
-    // return of(HEROES);
   }
 
   getHero = (id: string): Observable<Hero> => {
-    this.log(`fetched hero with id ${id}`);
-    // return of(HEROES.find(hero => hero.id === id));
-    return this.http.get<Hero[]>(`${this.heroesUrl}/${id}`).pipe(
-      map(res => res['result'])
+    return this.http.get<Hero>(`${this.heroesUrl}/${id}`).pipe(
+      map(res => res['result'] as Hero),
+      tap(_ => this.log(`fetched hero with id ${id}`)),
+    );
+  }
+
+  addHero = (hero: Hero): Observable<Hero> => {
+    return this.http.post<Hero>(`${this.heroesUrl}`, hero, this.httpOptions).pipe(
+      map(res => res['result'] as Hero),
+      tap((newHero: Hero) => this.log(`added new hero with id ${newHero.id}`)),
+    );
+  }
+
+  updateHero = (hero: Hero): Observable<Hero> => {
+    return this.http.put<Hero>(`${this.heroesUrl}/${hero.id}`, hero, this.httpOptions).pipe(
+      map(res => res['result'] as Hero),
+      tap(_ => this.log(`updated hero with id ${hero.id}`)),
+    );
+  }
+
+  removeHero = (hero: Hero): Observable<any> => {
+    return this.http.delete(`${this.heroesUrl}/${hero.id}`).pipe(
+      tap(_ => this.log(`removed hero with id ${hero.id}`)),
     );
   }
 
